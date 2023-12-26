@@ -1,0 +1,69 @@
+@extends('layouts.app')
+
+@section('content')
+    <div class="content-header">
+        <div class="container-fluid">
+            <div class="row mb-2">
+                <div class="col-sm-6">
+                    <h1 class="m-0">@lang('myNews.news')</h1>
+                </div>
+                <div class="col-sm-6">
+                    <ol class="breadcrumb float-sm-right">
+                        <li class="breadcrumb-item"><a href="{{ url('/') }}">@lang('myNews.home')</a></li>
+                        <li class="breadcrumb-item active">@lang('myNews.breadcrumb_news')</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <section class="content">
+        <div class="container-fluid">
+            <div class="row sortable" id="news-container">
+                @forelse($userNews as $item)
+                    <div class="col-md-3 mb-4">
+                        <div class="card">
+                            @if($item->featuredImage)
+                                <img src="{{ asset('storage/' . $item->featuredImage->image_path) }}" class="card-img-top w-100" alt="News Image">
+                            @elseif($item->firstImage)
+                                <img src="{{ asset('storage/' . $item->firstImage->image_path) }}" class="card-img-top w-100" alt="News Image">
+                            @else
+                                <img src="{{ asset('path/to/placeholder/image.jpg') }}" class="card-img-top w-100" alt="Placeholder Image">
+                            @endif
+                            <div class="card-body">
+                                <h5 class="card-title">{{ $item->title }}</h5>
+                                <p class="card-text">{{ $item->short_description }}</p>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <a href="{{ route('user.show', $item->id) }}" class="btn btn-primary">@lang('myNews.view_full_article')</a>
+                                    <a href="{{ route('user.edit', $item->id) }}" class="btn btn-primary">@lang('myNews.edit_article')</a>
+                                </div>
+                                <form method="POST" action="{{ route('user.delete', $item->id) }}" class="mt-3 text-center">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="btn btn-danger" onclick="return confirm('@lang('myNews.confirm_delete')')">@lang('myNews.delete_article')</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                @empty
+                    <div class="col-12">
+                        <p>@lang('myNews.no_news_found')</p>
+                    </div>
+                @endforelse
+            </div>
+        </div>
+    </section>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.14.0/Sortable.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var sortable = new Sortable(document.getElementById('news-container'), {
+                animation: 150,
+                handle: '.card',
+                ghostClass: 'sortable-ghost',
+                chosenClass: 'sortable-chosen',
+                dragClass: 'sortable-drag',
+            });
+        });
+    </script>
+@endsection
